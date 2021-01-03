@@ -1,3 +1,3 @@
-# Arcade-Legends
+# First Game with Source Control
 
 Test
