@@ -18,8 +18,7 @@ public class PlayerController : MonoBehaviour
     private Transform cameraMainTransform;
 
 
-    private bool isTouchingWall;
-    private bool wallSliding;
+
     private float wallSlidingSpeed = 1.0f;
 
     private void OnEnable()
