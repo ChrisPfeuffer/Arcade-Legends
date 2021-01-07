@@ -17,6 +17,11 @@ public class PlayerController : MonoBehaviour
     private bool groundedPlayer;
     private Transform cameraMainTransform;
 
+
+    private bool isTouchingWall;
+    private bool wallSliding;
+    private float wallSlidingSpeed = 1.0f;
+
     private void OnEnable()
     {
         movementControl.action.Enable();
@@ -70,11 +75,12 @@ public class PlayerController : MonoBehaviour
 
         if (!controller.isGrounded && hit.normal.y < 0.1f)
         {
-
+            playerVelocity = new Vector3(playerVelocity.x, Mathf.Clamp(playerVelocity.y, -wallSlidingSpeed, float.MaxValue), playerVelocity.z);
             if (jumpControl.action.triggered)
             {
                 Debug.DrawRay(hit.point, hit.normal, Color.red, 1.25f);
                 playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+
             }
         }
         #endregion
