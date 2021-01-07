@@ -20,6 +20,11 @@ public class PlayerController : MonoBehaviour
 
 
     private float wallSlidingSpeed = 1.0f;
+    [SerializeField] private bool walljumping;
+    public float xWallForce;
+    public float yWallForce;
+    public float wallJumpTime = 5;
+
 
     private void OnEnable()
     {
@@ -77,11 +82,24 @@ public class PlayerController : MonoBehaviour
             playerVelocity = new Vector3(playerVelocity.x, Mathf.Clamp(playerVelocity.y, -wallSlidingSpeed, float.MaxValue), playerVelocity.z);
             if (jumpControl.action.triggered)
             {
+                walljumping = true;
+                Invoke("SetWallJumpToFalse", wallJumpTime);
+                if(walljumping == true)
+                {
+                    //How to invert the button controls
+                    //Vector2 movement = -movementControl.action.ReadValue<Vector2>();
+                    //Vector3 move = new Vector3(movement.x * xWallForce, 0, movement.y);
+                }
                 Debug.DrawRay(hit.point, hit.normal, Color.red, 1.25f);
                 playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
 
             }
         }
         #endregion
+    }
+
+    private void SetWallJumpToFalse()
+    {
+        walljumping = false;
     }
 }
