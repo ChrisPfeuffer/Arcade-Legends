@@ -6,8 +6,10 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+
     [SerializeField] private InputActionReference movementControl;
     [SerializeField] private InputActionReference jumpControl;
+    
     private float playerSpeed = 6f;
     private float jumpHeight = 0.7f;
     private float gravityValue = -15f;
@@ -19,12 +21,11 @@ public class PlayerController : MonoBehaviour
 
 
 
+    private float wallJumpForce = 1.15f;
+    private float wallJumpTime = 0.2f;
     private float wallSlidingSpeed = 1.0f;
-    [SerializeField] private bool walljumping;
-    public float xWallForce;
-    public float yWallForce;
-    public float wallJumpTime = 5;
-
+    private bool walljumpingToRight;
+    private bool walljumpingToLeft;
 
     private void OnEnable()
     {
@@ -44,19 +45,87 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        PlayerMovementOnGround();
+
+    }
+
+    #region - Walljump -
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+
+        if (!controller.isGrounded && hit.normal.y < 0.1f)
+        {
+            Vector2 movement = movementControl.action.ReadValue<Vector2>();
+            playerVelocity = new Vector3(playerVelocity.x, Mathf.Clamp(playerVelocity.y, -wallSlidingSpeed, float.MaxValue), playerVelocity.z);
+            if (jumpControl.action.triggered && movement.x < 0)
+            {
+                playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.5f * gravityValue);
+                //Debug.DrawRay(hit.point, hit.normal, Color.red, 1.25f);
+                walljumpingToRight = true;
+                Invoke("SetWallJumpToRightFalse", wallJumpTime);
+            } 
+            else if (jumpControl.action.triggered && movement.x > 0)
+            {
+                playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.5f * gravityValue);
+                //Debug.DrawRay(hit.point, hit.normal, Color.red, 1.25f);
+                walljumpingToLeft = true;
+                Invoke("SetWallJumpToLeftFalse", wallJumpTime);
+            }
+        }
+        
+    }
+
+    private void Wallbounce(Vector2 movementWall)
+    {
+
+        // Actual wallbounce
+        if (walljumpingToRight == true)
+        {
+            Vector3 move = new Vector3(wallJumpForce, 0, movementWall.y);
+            move = cameraMainTransform.forward * -move.z + cameraMainTransform.right * -move.x;
+            move.y = 0f;
+            controller.Move(-move * Time.deltaTime * playerSpeed);
+        }
+        if (walljumpingToLeft == true)
+        {
+            Vector3 move = new Vector3(-wallJumpForce, 0, movementWall.y);
+            move = cameraMainTransform.forward * -move.z + cameraMainTransform.right * -move.x;
+            move.y = 0f;
+            controller.Move(-move * Time.deltaTime * playerSpeed);
+        }
+
+    }
+    private void SetWallJumpToRightFalse()
+    {
+        walljumpingToRight = false;
+    }
+    private void SetWallJumpToLeftFalse()
+    {
+        walljumpingToLeft = false;
+    }
+    #endregion
+
+    #region - PlayerMovementOnGround -
+    private void PlayerMovementOnGround()
+    {
         groundedPlayer = controller.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
         }
         Vector2 movement = movementControl.action.ReadValue<Vector2>();
-        Vector3 move = new Vector3(movement.x, 0, movement.y);
-        move = cameraMainTransform.forward * move.z + cameraMainTransform.right * move.x;
-        move.y = 0f;
-        controller.Move(move * Time.deltaTime * playerSpeed);
 
+        if (!walljumpingToRight && !walljumpingToLeft)
+        {
+            Vector3 move = new Vector3(movement.x, 0, movement.y);
+            move = cameraMainTransform.forward * move.z + cameraMainTransform.right * move.x;
+            move.y = 0f;
+            controller.Move(move * Time.deltaTime * playerSpeed);
+        }
+        Debug.Log(movement);
+        Wallbounce(movement);
 
-        // Changes the height position of the player..
+        // Makes player jump
         if (jumpControl.action.triggered && groundedPlayer)
         {
             playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
@@ -71,35 +140,7 @@ public class PlayerController : MonoBehaviour
             Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
             transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
         }
+
     }
-
-    #region Walljump
-    private void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-
-        if (!controller.isGrounded && hit.normal.y < 0.1f)
-        {
-            playerVelocity = new Vector3(playerVelocity.x, Mathf.Clamp(playerVelocity.y, -wallSlidingSpeed, float.MaxValue), playerVelocity.z);
-            if (jumpControl.action.triggered)
-            {
-                walljumping = true;
-                Invoke("SetWallJumpToFalse", wallJumpTime);
-                if(walljumping == true)
-                {
-                    //How to invert the button controls
-                    //Vector2 movement = -movementControl.action.ReadValue<Vector2>();
-                    //Vector3 move = new Vector3(movement.x * xWallForce, 0, movement.y);
-                }
-                Debug.DrawRay(hit.point, hit.normal, Color.red, 1.25f);
-                playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
-
-            }
-        }
-        #endregion
-    }
-
-    private void SetWallJumpToFalse()
-    {
-        walljumping = false;
-    }
+    #endregion
 }

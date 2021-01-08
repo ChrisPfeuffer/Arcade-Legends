@@ -18,7 +18,7 @@
                     "type": "PassThrough",
                     "id": "9503ef8a-513b-480b-8c66-5e330f8a8ca0",
                     "expectedControlType": "Vector2",
-                    "processors": "",
+                    "processors": "InvertVector2(invertX=false,invertY=false)",
                     "interactions": ""
                 },
                 {
