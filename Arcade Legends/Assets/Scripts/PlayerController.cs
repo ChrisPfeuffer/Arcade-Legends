@@ -9,10 +9,10 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private InputActionReference movementControl;
     [SerializeField] private InputActionReference jumpControl;
-    
-    private float playerSpeed = 6f;
+
+    [SerializeField] private float playerSpeed = 6f;
     private float jumpHeight = 0.7f;
-    private float gravityValue = -15f;
+    [SerializeField] private float gravityValue = -15f;
     private float rotationSpeed = 10f;
     private CharacterController controller;
     private Vector3 playerVelocity;
@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour
 
 
 
-    private float wallJumpForce = 1.15f;
+    private float wallJumpForce = 1f;
     private float wallJumpTime = 0.2f;
     private float wallSlidingSpeed = 1.0f;
     private bool walljumpingToRight;
