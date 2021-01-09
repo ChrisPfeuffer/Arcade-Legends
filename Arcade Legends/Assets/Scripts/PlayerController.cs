@@ -9,10 +9,11 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private InputActionReference movementControl;
     [SerializeField] private InputActionReference jumpControl;
+    [SerializeField] private InputActionReference dashControl;
 
     [SerializeField] private float playerSpeed = 6f;
-    private float jumpHeight = 0.7f;
     [SerializeField] private float gravityValue = -15f;
+    [SerializeField] private float jumpHeight = 0.7f;
     private float rotationSpeed = 10f;
     private CharacterController controller;
     private Vector3 playerVelocity;
@@ -27,15 +28,20 @@ public class PlayerController : MonoBehaviour
     private bool walljumpingToRight;
     private bool walljumpingToLeft;
 
+
+    [SerializeField] private float dashSpeed = 30f;
+    [SerializeField] private float dashingTime = 0.05f;
     private void OnEnable()
     {
         movementControl.action.Enable();
         jumpControl.action.Enable();
+        dashControl.action.Enable();
     }
     private void OnDisable()
     {
         movementControl.action.Disable();
         jumpControl.action.Disable();
+        dashControl.action.Disable();
     }
     private void Start()
     {
@@ -104,7 +110,21 @@ public class PlayerController : MonoBehaviour
         walljumpingToLeft = false;
     }
     #endregion
+    IEnumerator Dash()
+    {
+        float startTime = Time.time;
 
+        while(Time.time < startTime + dashingTime)
+        {
+            Vector2 movement = movementControl.action.ReadValue<Vector2>();
+            Vector3 move = new Vector3(movement.x, 0, movement.y);
+            move = cameraMainTransform.forward * move.z + cameraMainTransform.right * move.x;
+            move.y = 0f;
+            controller.Move(move * Time.deltaTime * dashSpeed);
+
+            yield return null;
+        }
+    }
     #region - PlayerMovementOnGround -
     private void PlayerMovementOnGround()
     {
@@ -125,7 +145,7 @@ public class PlayerController : MonoBehaviour
         Debug.Log(movement);
         Wallbounce(movement);
 
-        // Makes player jump
+        #region - Jump -
         if (jumpControl.action.triggered && groundedPlayer)
         {
             playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
@@ -140,7 +160,23 @@ public class PlayerController : MonoBehaviour
             Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
             transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
         }
+        #endregion
 
+        #region - Dash -
+        if (dashControl.action.triggered)
+        {
+            StartCoroutine(Dash());
+        }
+
+        //controller.Move(playerVelocity * Time.deltaTime);
+
+        if (movement != Vector2.zero)
+        {
+            float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + cameraMainTransform.eulerAngles.y;
+            Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
+            transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
+        }
+        #endregion
     }
     #endregion
 }
