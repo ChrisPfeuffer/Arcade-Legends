@@ -6,54 +6,117 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-
+    [Header("Input Implementation")]
     [SerializeField] private InputActionReference movementControl;
     [SerializeField] private InputActionReference jumpControl;
     [SerializeField] private InputActionReference dashControl;
 
-    [SerializeField] private float playerSpeed = 6f;
-    [SerializeField] private float gravityValue = -15f;
-    [SerializeField] private float jumpHeight = 0.7f;
-    private float rotationSpeed = 10f;
+    [Header("CharacterController")]
     private CharacterController controller;
-    private Vector3 playerVelocity;
-    private bool groundedPlayer;
+
+    [Header("Camera")]
     private Transform cameraMainTransform;
 
+    [Header("Movement")]
+    [SerializeField] private float playerSpeed = 6f;
+    private Vector3 playerVelocity;
+    private Vector2 movement;
+    private float rotationSpeed = 10f;
 
 
-    private float wallJumpForce = 1f;
-    private float wallJumpTime = 0.2f;
-    private float wallSlidingSpeed = 1.0f;
+    [Header("Jumping Parameters")]
+    [SerializeField] private float jumpHeight = 0.7f;
+    [SerializeField] private float gravityValue = -15f;
+    private bool groundedPlayer;
+
+    [Header("Wall Jump")]
+    [SerializeField] private float wallJumpForce = 1f;
+    [SerializeField] private float wallJumpTime = 0.2f;
+    [SerializeField] private float wallSlidingSpeed = 1.0f;
     private bool walljumpingToRight;
     private bool walljumpingToLeft;
 
-
+    [Header("Dash")]
     [SerializeField] private float dashSpeed = 30f;
     [SerializeField] private float dashingTime = 0.05f;
+
+
+    #region - On Enable - 
     private void OnEnable()
     {
         movementControl.action.Enable();
         jumpControl.action.Enable();
         dashControl.action.Enable();
     }
+    #endregion
+
+    #region - On Disable - 
     private void OnDisable()
     {
         movementControl.action.Disable();
         jumpControl.action.Disable();
         dashControl.action.Disable();
     }
+    #endregion
+
+    #region - Start Function - 
     private void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
         cameraMainTransform = Camera.main.transform;
     }
+    #endregion
 
+    #region - Update Function - 
     void Update()
     {
-        PlayerMovementOnGround();
+        movement = movementControl.action.ReadValue<Vector2>();
 
+        PlayerMovementOnGround();
+        Wallbounce();
+        playerDash();
+        Jump();
     }
+    #endregion
+
+    #region - PlayerMovementOnGround -
+    private void PlayerMovementOnGround()
+    {
+        groundedPlayer = controller.isGrounded;
+        if (groundedPlayer && playerVelocity.y < 0)
+        {
+            playerVelocity.y = 0f;
+        }
+
+        if (!walljumpingToRight && !walljumpingToLeft)
+        {
+            Vector3 move = new Vector3(movement.x, 0, movement.y);
+            move = cameraMainTransform.forward * move.z + cameraMainTransform.right * move.x;
+            move.y = 0f;
+            controller.Move(move * Time.deltaTime * playerSpeed);
+        }
+    }
+    #endregion
+
+    #region - Jump -
+    private void Jump()
+    {
+        if (jumpControl.action.triggered && groundedPlayer)
+        {
+            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+        }
+
+        playerVelocity.y += gravityValue * Time.deltaTime;
+        controller.Move(playerVelocity * Time.deltaTime);
+
+        if (movement != Vector2.zero)
+        {
+            float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + cameraMainTransform.eulerAngles.y;
+            Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
+            transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
+        }
+    }
+    #endregion
 
     #region - Walljump -
     private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -61,7 +124,6 @@ public class PlayerController : MonoBehaviour
 
         if (!controller.isGrounded && hit.normal.y < 0.1f)
         {
-            Vector2 movement = movementControl.action.ReadValue<Vector2>();
             playerVelocity = new Vector3(playerVelocity.x, Mathf.Clamp(playerVelocity.y, -wallSlidingSpeed, float.MaxValue), playerVelocity.z);
             if (jumpControl.action.triggered && movement.x < 0)
             {
@@ -81,20 +143,20 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    private void Wallbounce(Vector2 movementWall)
+    private void Wallbounce()
     {
 
         // Actual wallbounce
         if (walljumpingToRight == true)
         {
-            Vector3 move = new Vector3(wallJumpForce, 0, movementWall.y);
+            Vector3 move = new Vector3(wallJumpForce, 0, movement.y);
             move = cameraMainTransform.forward * -move.z + cameraMainTransform.right * -move.x;
             move.y = 0f;
             controller.Move(-move * Time.deltaTime * playerSpeed);
         }
         if (walljumpingToLeft == true)
         {
-            Vector3 move = new Vector3(-wallJumpForce, 0, movementWall.y);
+            Vector3 move = new Vector3(-wallJumpForce, 0, movement.y);
             move = cameraMainTransform.forward * -move.z + cameraMainTransform.right * -move.x;
             move.y = 0f;
             controller.Move(-move * Time.deltaTime * playerSpeed);
@@ -110,13 +172,14 @@ public class PlayerController : MonoBehaviour
         walljumpingToLeft = false;
     }
     #endregion
+
+    #region - Dash - 
     IEnumerator Dash()
     {
         float startTime = Time.time;
 
         while(Time.time < startTime + dashingTime)
         {
-            Vector2 movement = movementControl.action.ReadValue<Vector2>();
             Vector3 move = new Vector3(movement.x, 0, movement.y);
             move = cameraMainTransform.forward * move.z + cameraMainTransform.right * move.x;
             move.y = 0f;
@@ -125,58 +188,16 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
     }
-    #region - PlayerMovementOnGround -
-    private void PlayerMovementOnGround()
+    private void playerDash()
     {
-        groundedPlayer = controller.isGrounded;
-        if (groundedPlayer && playerVelocity.y < 0)
-        {
-            playerVelocity.y = 0f;
-        }
-        Vector2 movement = movementControl.action.ReadValue<Vector2>();
-
-        if (!walljumpingToRight && !walljumpingToLeft)
-        {
-            Vector3 move = new Vector3(movement.x, 0, movement.y);
-            move = cameraMainTransform.forward * move.z + cameraMainTransform.right * move.x;
-            move.y = 0f;
-            controller.Move(move * Time.deltaTime * playerSpeed);
-        }
-        Debug.Log(movement);
-        Wallbounce(movement);
-
-        #region - Jump -
-        if (jumpControl.action.triggered && groundedPlayer)
-        {
-            playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
-        }
-
-        playerVelocity.y += gravityValue * Time.deltaTime;
-        controller.Move(playerVelocity * Time.deltaTime);
-
-        if (movement != Vector2.zero)
-        {
-            float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + cameraMainTransform.eulerAngles.y;
-            Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
-            transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
-        }
-        #endregion
-
-        #region - Dash -
         if (dashControl.action.triggered)
         {
             StartCoroutine(Dash());
         }
-
-        //controller.Move(playerVelocity * Time.deltaTime);
-
-        if (movement != Vector2.zero)
-        {
-            float targetAngle = Mathf.Atan2(movement.x, movement.y) * Mathf.Rad2Deg + cameraMainTransform.eulerAngles.y;
-            Quaternion rotation = Quaternion.Euler(0f, targetAngle, 0f);
-            transform.rotation = Quaternion.Lerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
-        }
-        #endregion
     }
-    #endregion
+#endregion
+
+    
+
+    
 }
