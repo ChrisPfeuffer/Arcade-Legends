@@ -125,14 +125,16 @@ public class PlayerController : MonoBehaviour
         if (!controller.isGrounded && hit.normal.y < 0.1f)
         {
             playerVelocity = new Vector3(playerVelocity.x, Mathf.Clamp(playerVelocity.y, -wallSlidingSpeed, float.MaxValue), playerVelocity.z);
-            if (jumpControl.action.triggered && movement.x < 0)
+            if (jumpControl.action.triggered && movement.x < 0 && walljumpingToRight == false)
             {
                 playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.5f * gravityValue);
                 //Debug.DrawRay(hit.point, hit.normal, Color.red, 1.25f);
+                //Debug.Log(hit.normal);
                 walljumpingToRight = true;
                 Invoke("SetWallJumpToRightFalse", wallJumpTime);
+
             } 
-            else if (jumpControl.action.triggered && movement.x > 0)
+            else if (jumpControl.action.triggered && movement.x > 0 && walljumpingToLeft == false)
             {
                 playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.5f * gravityValue);
                 //Debug.DrawRay(hit.point, hit.normal, Color.red, 1.25f);
