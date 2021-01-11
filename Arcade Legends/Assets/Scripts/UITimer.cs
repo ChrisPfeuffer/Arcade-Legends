@@ -6,16 +6,20 @@ using TMPro;
 public class UITimer : MonoBehaviour
 {
     public TextMeshProUGUI timerText;
-    private float time;
+    private float startTime;
     void Start()
     {
         timerText = GetComponent<TextMeshProUGUI>();
-        timerText.text = "Time: " + time;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        float t = Time.time - startTime;
+
+        string minutes = ((int)t / 60).ToString();
+        string seconds = ((t % 60).ToString("f2"));
+
+        timerText.text = "Time: " + minutes + ":" + seconds;
     }
 }

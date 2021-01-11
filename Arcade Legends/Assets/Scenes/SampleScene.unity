@@ -1893,6 +1893,7 @@ GameObject:
   - component: {fileID: 60011992}
   - component: {fileID: 60011994}
   - component: {fileID: 60011993}
+  - component: {fileID: 60011995}
   m_Layer: 5
   m_Name: Timer
   m_TagString: Untagged
@@ -1938,7 +1939,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Time: '
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1981,7 +1982,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -2015,6 +2016,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 60011991}
   m_CullTransparentMesh: 0
+--- !u!114 &60011995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 60011991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7950fc14bb185014cbd15c8a09e8da7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timerText: {fileID: 60011993}
 --- !u!1 &115116430
 GameObject:
   m_ObjectHideFlags: 3
@@ -2288,7 +2302,7 @@ Transform:
   - {fileID: 920961656}
   - {fileID: 683538601}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &242359912
 Mesh:
@@ -2645,7 +2659,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 421554028}
-  m_LocalRotation: {x: 0.12497404, y: 0.0000000019609132, z: -2.4699962e-10, w: 0.99216}
+  m_LocalRotation: {x: 0.12497404, y: 0.0000000019609114, z: -2.469994e-10, w: 0.99216}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -3852,7 +3866,6 @@ GameObject:
   - component: {fileID: 791536262}
   - component: {fileID: 791536267}
   - component: {fileID: 791536263}
-  - component: {fileID: 791536268}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -3959,7 +3972,7 @@ Transform:
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &791536267
 CharacterController:
@@ -3979,19 +3992,6 @@ CharacterController:
   m_SkinWidth: 0.03
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &791536268
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 791536261}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7950fc14bb185014cbd15c8a09e8da7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timerText: {fileID: 60011993}
 --- !u!43 &811973460
 Mesh:
   m_ObjectHideFlags: 0
@@ -4859,7 +4859,7 @@ Transform:
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 36.67, y: 0, z: 0}
 --- !u!114 &963194229
 MonoBehaviour:
@@ -74987,7 +74987,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1180944908
 GameObject:
@@ -76133,7 +76133,7 @@ RectTransform:
   m_Children:
   - {fileID: 60011992}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -76364,7 +76364,7 @@ Transform:
   - {fileID: 1666660201}
   - {fileID: 421554030}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1684467560
 MonoBehaviour:
