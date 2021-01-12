@@ -127,22 +127,28 @@ public class PlayerController : MonoBehaviour
             playerVelocity = new Vector3(playerVelocity.x, Mathf.Clamp(playerVelocity.y, -wallSlidingSpeed, float.MaxValue), playerVelocity.z);
             if (jumpControl.action.triggered && movement.x < 0 && walljumpingToRight == false)
             {
-                playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.5f * gravityValue);
-                //Debug.DrawRay(hit.point, hit.normal, Color.red, 1.25f);
-                //Debug.Log(hit.normal);
+                string walljumpbool = "SetWallJumpToRightFalse";
                 walljumpingToRight = true;
-                Invoke("SetWallJumpToRightFalse", wallJumpTime);
+                WalljumpheightIfTrue(walljumpbool);
+
 
             } 
             else if (jumpControl.action.triggered && movement.x > 0 && walljumpingToLeft == false)
             {
-                playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.5f * gravityValue);
-                //Debug.DrawRay(hit.point, hit.normal, Color.red, 1.25f);
+                string walljumpbool = "SetWallJumpToLeftFalse";
                 walljumpingToLeft = true;
-                Invoke("SetWallJumpToLeftFalse", wallJumpTime);
+                WalljumpheightIfTrue(walljumpbool);
             }
         }
         
+    }
+
+    private void WalljumpheightIfTrue(string textwalljumpbool)
+    {
+        playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.5f * gravityValue);
+        //Debug.DrawRay(hit.point, hit.normal, Color.red, 1.25f);
+
+        Invoke(textwalljumpbool, wallJumpTime);
     }
 
     private void Wallbounce()
