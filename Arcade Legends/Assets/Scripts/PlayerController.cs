@@ -90,11 +90,15 @@ public class PlayerController : MonoBehaviour
 
         if (!walljumpingToRight && !walljumpingToLeft)
         {
-            Vector3 move = new Vector3(movement.x, 0, movement.y);
-            move = cameraMainTransform.forward * move.z + cameraMainTransform.right * move.x;
-            move.y = 0f;
-            controller.Move(move * Time.deltaTime * playerSpeed);
+            MoveTransformation(playerSpeed);
         }
+    }
+    private void MoveTransformation(float speed)
+    {
+        Vector3 move = new Vector3(movement.x, 0, movement.y);
+        move = cameraMainTransform.forward * move.z + cameraMainTransform.right * move.x;
+        move.y = 0f;
+        controller.Move(move * Time.deltaTime * speed);
     }
     #endregion
 
@@ -168,9 +172,14 @@ public class PlayerController : MonoBehaviour
             move = cameraMainTransform.forward * -move.z + cameraMainTransform.right * -move.x;
             move.y = 0f;
             controller.Move(-move * Time.deltaTime * playerSpeed);
+
+            Debug.Log(wallJumpForce);
         }
 
+
+
     }
+
     private void SetWallJumpToRightFalse()
     {
         walljumpingToRight = false;
@@ -188,14 +197,12 @@ public class PlayerController : MonoBehaviour
 
         while(Time.time < startTime + dashingTime)
         {
-            Vector3 move = new Vector3(movement.x, 0, movement.y);
-            move = cameraMainTransform.forward * move.z + cameraMainTransform.right * move.x;
-            move.y = 0f;
-            controller.Move(move * Time.deltaTime * dashSpeed);
+            MoveTransformation(dashSpeed);
 
             yield return null;
         }
     }
+
     private void playerDash()
     {
         if (dashControl.action.triggered)
