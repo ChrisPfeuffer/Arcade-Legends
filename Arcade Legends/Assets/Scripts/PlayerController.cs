@@ -172,13 +172,10 @@ public class PlayerController : MonoBehaviour
             move = cameraMainTransform.forward * -move.z + cameraMainTransform.right * -move.x;
             move.y = 0f;
             controller.Move(-move * Time.deltaTime * playerSpeed);
-
-            Debug.Log(wallJumpForce);
         }
-
-
-
     }
+
+
 
     private void SetWallJumpToRightFalse()
     {
